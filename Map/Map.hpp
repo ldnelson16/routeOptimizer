@@ -50,8 +50,13 @@ class Map {
       auto ita = lower_bound(nodes.begin(),nodes.end(),loc_a);
       auto itb = lower_bound(nodes.begin(),nodes.end(),loc_b);
       // both locations exist
-      if (ita!=nodes.end() && itb!=nodes.end() && (*ita).coords==loc_a.coords && (*itb).coords==loc_b.coords) {
+      if (ita!=nodes.end() && itb!=nodes.end() && *ita==loc_a && *itb==loc_b) {
         // path already exists
+        for (auto it: ita->paths) {
+          if (it==Path(name,terrain,loc_a,loc_b)) {
+            throw PathAlreadyExists(Path(name,terrain,loc_a,loc_b));
+          }
+        }
         (*ita).paths.push_back(Path(name,terrain,loc_a,loc_b));
         (*itb).paths.push_back(Path(name,terrain,loc_b,loc_a));
         //path doesnt exist
@@ -64,8 +69,8 @@ class Map {
 
     // Add Path btwn two Location nodes
     void addPath(Path &path) {
-      (path.vertices.first.paths).push_back(path);
-      (path.vertices.second.paths).push_back(path);
+      (path.startendpair.first->paths).push_back(path);
+      (path.startendpair.second->paths).push_back(path);
     }
 };
 
