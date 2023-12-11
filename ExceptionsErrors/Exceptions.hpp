@@ -5,13 +5,39 @@
 #include <cmath>
 #include <string>
 
-struct Location;
+// FORWARD DECLARATIONS
+class Path;
+class Location;
+
+using namespace std;
 
 class LocationAlreadyExists: public std::exception {
   private: 
-    std::string errorMessage;
+    string errorMessage;
   public:
-    LocationAlreadyExists(Location loc); 
+    LocationAlreadyExists(Location loc);
+    
+    const char* what() const noexcept override {
+      return errorMessage.c_str();
+    }
+};
+
+class PathAlreadyExists: public std::exception {
+  private: 
+    string errorMessage;
+  public:
+    PathAlreadyExists(Path p); 
+    
+    const char* what() const noexcept override {
+      return errorMessage.c_str();
+    }
+};
+
+class LocationDoesntExist: public std::exception {
+  private: 
+    string errorMessage;
+  public:
+    LocationDoesntExist(Location a, Location b); 
     
     const char* what() const noexcept override {
       return errorMessage.c_str();

@@ -1,6 +1,15 @@
 #include "Exceptions.hpp"
-#include "../Map/Map.hpp"
+#include "../Map/Location.hpp"
+#include "../Map/Path.hpp"
 
 LocationAlreadyExists::LocationAlreadyExists(Location loc) {
-  errorMessage = "Location "+loc.name+" at (Lat,Lon) ("+to_string(round(loc.latitude*100000)/100000)+","+to_string(round(loc.longitude*100000)/100000)+")";
+  errorMessage = "Location already exists.\n"+loc.str();
+}
+
+PathAlreadyExists::PathAlreadyExists(Path p) {
+  errorMessage = "Path already exists.\n"+p.str();
+}
+
+LocationDoesntExist::LocationDoesntExist(Location a, Location b) {
+  errorMessage = "The following location(s) isn't in the map yet.";
 }
