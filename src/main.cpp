@@ -1,12 +1,14 @@
 #include "../Map/Map.hpp"
+#include "../Map/Location.hpp"
+#include "../Map/Path.hpp"
 #include <iostream>
 
 int main() {
   Map map;
   map.addLocation(Location("Hello",100.1,100.2));
   map.addLocation(Location("Bye",100.2,100.2));
-  for (double i=0.; i < 100; i+=0.1) {
-    map.addLocation(Location("Hello",100.4,i));
-  }
-  map.addLocation(Location("hello",100.1,100.2));
+  map.addLocation(Location("G",0.5,0.6));
+  map.addPath(Location("h",100.1,100.2),Location("e",100.2,100.2),Paved,"name2");
+  map.addPath(Location("Green grass",0.5,0.6),Location("Blue sky",1.5,0.6),Gravel,"name");
+  cout << "Done";
 }
