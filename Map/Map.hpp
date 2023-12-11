@@ -6,57 +6,25 @@
 #include <list>
 #include <map>
 #include <algorithm>
+#include <sstream>
+
+#include "Location.hpp"
+#include "Path.hpp"
 #include "../ExceptionsErrors/Exceptions.hpp"
 
 using namespace std;
 
 // FORWARD DECLARATIONS
-struct Path;
-struct Location;
+enum TerrainType;
+class Path;
+class Location;
+class LocationAlreadyExists;
+class PathAlreadyExists;
 
 /* 
 Creator: Luke Nelson
 Start Date: 12/10/2023
 */
-
-// Variable to represent type of terrain
-enum TerrainType { 
-    Paved,
-    Gravel,
-    Dirt,
-    Grass
-};
-
-// location for Struct (node)
-// Constructor: {string Name, double Latitude, double Longitude}
-struct Location { 
-  size_t id; // id of Location, used in storage map
-  string name; // Name of location (i.e. corner of Geddes and Oxford)
-  double latitude; // Latitude
-  double longitude; // Longitude
-  list<Path> paths; // List of paths connected to point
-
-  Location() = default; // DEFAULT CONSTRUCTOR 
-  Location(string name_in, double lat_in, double lon_in): id(0), name(name_in), latitude(lat_in), longitude(lon_in) {}
-
-  bool operator==(const Location& other) const {
-    return latitude == other.latitude && longitude == other.longitude;
-  }
-  bool operator<(const Location& other) const {
-    return std::tie(latitude, longitude) < std::tie(other.latitude, other.longitude);
-  }
-};
-
-// Path representing a connection between two locations
-// Constructor: {string Name, double Latitude, double Longitude}
-struct Path {
-  string pathname; // Name of path (i.e. Sheldon Road)
-  TerrainType terrain; // Type of terrain (i.e. Grass) (represented by enum TerrainType)
-  pair<Location,Location> vertices;
-  // Safety level, frequency and other variables
-
-  Path(string name_in, TerrainType ter_in, Location loc_a, Location loc_b): pathname(name_in), terrain(ter_in), vertices({loc_a,loc_b}) {}
-};
 
 class Map {
   private:
@@ -66,7 +34,7 @@ class Map {
     Map() {}
 
     // Add Location node
-    void addLocation(Location loc) {
+    void addLocation(const Location &loc) {
       if (binary_search(nodes.begin(),nodes.end(),loc)) {throw LocationAlreadyExists(loc);}
       else {
         auto insertionPoint = lower_bound(nodes.begin(), nodes.end(), loc);
@@ -75,13 +43,29 @@ class Map {
     }
 
     // Add Path btwn two Location nodes
-    void addPath(Location loc_a, Location loc_b, TerrainType terrain, string name) {
-      
+    void addPath(const Location &loc_a, const Location &loc_b, TerrainType terrain, string name) {
+      /*for (Path path: loc_a.paths) {
+        if (path==Path(name,terrain,loc_a,loc_b)) {throw PathAlreadyExists(Path(name,terrain,loc_a,loc_b));}
+      }*/
+      auto ita = lower_bound(nodes.begin(),nodes.end(),loc_a);
+      auto itb = lower_bound(nodes.begin(),nodes.end(),loc_b);
+      // both locations exist
+      if (ita!=nodes.end() && itb!=nodes.end() && (*ita).coords==loc_a.coords && (*itb).coords==loc_b.coords) {
+        // path already exists
+        (*ita).paths.push_back(Path(name,terrain,loc_a,loc_b));
+        (*itb).paths.push_back(Path(name,terrain,loc_b,loc_a));
+        //path doesnt exist
+      }
+      // one or neither locations exist
+      else {
+        throw LocationDoesntExist(loc_a, loc_b);
+      }
     }
 
     // Add Path btwn two Location nodes
-    void addPath(Path path) {
-
+    void addPath(Path &path) {
+      (path.vertices.first.paths).push_back(path);
+      (path.vertices.second.paths).push_back(path);
     }
 };
 
