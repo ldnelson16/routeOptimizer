@@ -33,6 +33,9 @@ class Location {
     bool operator==(const Location& other) const {
       return coords==other.coords;
     }
+    bool operator!=(const Location& other) const {
+      return coords!=other.coords;
+    }
     bool operator<(const Location& other) const {
       return tie(coords) < tie(other.coords);
     }
