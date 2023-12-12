@@ -26,7 +26,7 @@ enum TerrainType {
 // Path representing a connection between two locations
 // Constructor: {string Name, Terraintype terrain, Location, Location}
 class Path {
-  using vertices = pair<Location*,Location*>;
+  using vertices = pair<const Location*,const Location*>;
   public:
     string pathname; // Name of path (i.e. Sheldon Road)
     TerrainType terrain; // Type of terrain (i.e. Grass) (represented by enum TerrainType)
@@ -34,7 +34,7 @@ class Path {
     // Safety level, frequency and other variables
 
     // Default constructor 
-    Path(string name_in, TerrainType ter_in, Location loc_a, Location loc_b);
+    Path(string name_in, TerrainType ter_in, const Location* loc_a, const Location* loc_b);
     // Copy ctor (used to reverse Path)
     Path(const Path& reverse);
 
@@ -42,6 +42,9 @@ class Path {
 
     bool operator==(const Path& other) {
       return (*(startendpair.first)==*(other.startendpair.first)&&*(startendpair.second)==*(other.startendpair.second))||(*(startendpair.first)==*(other.startendpair.second)&&*(startendpair.second)==*(other.startendpair.first));
+    }
+    bool operator==(const pair<const Location,const Location> locs) {
+      return true;
     }
 };
 
