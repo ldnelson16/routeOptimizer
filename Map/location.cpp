@@ -17,3 +17,24 @@ std::string Location::str(bool concise) const {
     return loc_info.str();
   }
 }
+
+Path& Location::operator[](const pair<Location,pair<TerrainType,string>> &other) const {
+  for (Path& path: paths) {
+    if (path==make_pair(*this,other.first)) {
+      // rename path for this node
+      path.terrain = other.second.first;
+      path.pathname = other.second.second;
+      // rename path for other node
+      for (Path& otherpath: other.first.paths) {
+        if (otherpath==path) {
+          otherpath.terrain = other.second.first;
+          otherpath.pathname = other.second.second;
+        }
+      }
+      return path;
+    }
+  }
+  paths.push_back(Path(other.second.second,other.second.first,this,&other.first));
+  other.first.paths.push_back(Path(other.second.second,other.second.first,&(other.first),this));
+  return (*this)[other];
+}

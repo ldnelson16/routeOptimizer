@@ -32,45 +32,7 @@ class GeoMap {
     friend class PathAlreadyExists;
     friend class LocationAlreadyExists;
     // EXCEPTIONS (PRIVATE TO GEOMAP)
-    class LocationAlreadyExists: public std::exception {
-    private: 
-      string errorMessage;
-    public:
-      LocationAlreadyExists(const Location &loc) {
-        errorMessage = "Location already exists.\n"+loc.str();
-      }
-      
-      const char* what() const noexcept override {
-        return errorMessage.c_str();
-      }
-    };
-    class PathAlreadyExists: public std::exception {
-      private: 
-        string errorMessage;
-      public:
-        PathAlreadyExists(const Path &p) {
-          errorMessage = "Path already exists.\n"+p.str();
-        } 
-        const char* what() const noexcept override {
-          return errorMessage.c_str();
-        }
-    };
-    class LocationDoesntExist: public std::exception {
-      private: 
-        string errorMessage;
-      public:
-        LocationDoesntExist(const vector<Location>& locs) {
-          errorMessage = "The following location(s) aren't in the geomap yet:\n";
-          ostringstream message;
-          for (const Location& loc: locs) {
-            message << loc.str();
-          }
-          errorMessage+=message.str();
-        } 
-        const char* what() const noexcept override {
-          return errorMessage.c_str();
-        }
-    };
+
     // Default constructor (takes no inputs)
     GeoMap() {}
 
@@ -92,6 +54,12 @@ class GeoMap {
       auto it = lower_bound(nodes.begin(),nodes.end(),Location("",latlonname.first.first,latlonname.first.second));
       (*it).name=latlonname.second;
       return *it;
+    }
+
+    // () operator to create a path (returns reference to that path)
+    Path& operator()(Location& loc_a, Location& loc_b, TerrainType terrain, string name, bool force = true) {
+      addPath(loc_a,loc_b,terrain,name,force);
+      return loc_a[make_pair(loc_b,make_pair(terrain,name))];
     }
 
     // returns true if latlon pair is in geomap, false if not

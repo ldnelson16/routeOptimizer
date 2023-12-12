@@ -10,18 +10,11 @@
 #include <cmath>
 #include <utility>
 #include "Location.hpp"
+#include "TerrainType.hpp"
 
 using namespace std;
 
 class Location;
-
-// Variable to represent type of terrain
-enum TerrainType { 
-  Paved,
-  Gravel,
-  Dirt,
-  Grass
-};
 
 // Path representing a connection between two locations
 // Constructor: {string Name, Terraintype terrain, Location, Location}
@@ -45,6 +38,18 @@ class Path {
     }
     bool operator==(const pair<const Location,const Location> locs) {
       return true;
+    }
+};
+
+class PathAlreadyExists: public std::exception {
+  private: 
+    string errorMessage;
+  public:
+    PathAlreadyExists(const Path &p) {
+      errorMessage = "Path already exists.\n"+p.str();
+    } 
+    const char* what() const noexcept override {
+      return errorMessage.c_str();
     }
 };
 
