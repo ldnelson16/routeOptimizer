@@ -1,15 +1,20 @@
 #include "Path.hpp"
 #include "Location.hpp"
 
-Path::Path(string name_in, TerrainType ter_in, const Location* loc_a, const Location* loc_b): pathname(name_in), terrain(ter_in), startendpair({loc_a,loc_b}) {}
+Path::Path(string name_in, TerrainType ter_in, Location* loc_a, Location* loc_b): pathname(name_in), terrain(ter_in), start(loc_a), dest(loc_b) {}
 
-Path::Path(const Path& other): pathname(other.pathname), terrain(other.terrain), startendpair({other.startendpair.second,other.startendpair.first}) {}
+Path::Path(const Path& other): pathname(other.pathname), terrain(other.terrain), start(other.start), dest(other.dest) {}
+
+Path::Path(const Path& other, bool reverse): pathname(other.pathname), terrain(other.terrain){
+  if (reverse) {start = other.dest; dest = other.start;}
+  else {start = other.start; dest = other.dest;}
+}
 
 string Path::str(bool concise) const {
   if (concise) {
-    return pathname + ", " + startendpair.first->str(true)+"<->"+startendpair.second->str(true);
+    return pathname + ", " + start->str(true)+"<->"+dest->str(true);
   }
   else {
-    return "Name: "+pathname+"\nFrom "+startendpair.first->str(true)+" to "+startendpair.second->str(true)+"\nWith terrain type of "+to_string(terrain);
+    return "Name: "+pathname+"\nFrom "+start->str(true)+" to "+dest->str(true)+"\nWith terrain type of "+to_string(terrain);
   }
 }
