@@ -1,17 +1,20 @@
 #include "../Map/GeoMap.hpp"
 #include "../Map/Location.hpp"
 #include "../Map/Path.hpp"
+#include "../Map/Coordinates.hpp"
 #include <iostream>
 
 int main() {
   GeoMap map;
-  map[{{100.1,100.0},"Parker Swanton"}];
-  map[{{100.1,100.2},"Harry Potter"}];
-  map[{{99.5,120.0},"Travis Kelce"}];
-  map[{{100.2,100.2},"Luke Nelson"}];
+  map[{"Detroit",Coordinates(4,8)}];
+  map[{"Lansing",Coordinates(12,8)}];
+  map[{"Ann Arbor",Coordinates(10,8)}];
+  map[{"Pontiac",Coordinates(4,80)}];
   
-  map.addPath(map[{100.1,100.2}],Location("e",100.2,100.2),Paved,"name2");
-  map.addPath(Location("Green grass",0.5,0.6),Location("Blue sky",100.1,100.1),Gravel,"name",true);
-  map.addPath(Location("Canton",50.5,40.4),Location("Plymouth",60.6,70.7),Dirt,"Canton Center btwn Plymouth and Canton",true);
+  map[{Coordinates(4,8),Coordinates(12,8),{"Grand River",Paved}}];
+  map[{Coordinates(4,80,"Toledo"),Coordinates(12,10,"Columbus"),{"US-23",Paved}}];
+  map[{Coordinates(14,8,"Chicago"),Coordinates(120,8,"Grand Valley State"),{"M18",Gravel}}];
+  map[{Coordinates(4,80),Coordinates(12,9),{"I94",Unknown}}];
+  map[{Coordinates(50,50,"Canton"),Coordinates(60,60,"Plymouth"),{"Canton Center",Dirt}}];
   cout << "Done";
 }
