@@ -11,27 +11,27 @@
 #include <cmath>
 
 #include "TerrainType.hpp"
+#include "Coordinates.hpp"
 
 using namespace std;
 
 // FORWARD DECLARATION
+class GeoMap;
 class Path;
 
 // location for Struct (node)
 // Constructor: {string Name, double Latitude, double Longitude}
 class Location { 
-  using coordinates = pair<pair<int,int>,pair<int,int>>;
-  public:
-    size_t id; // id of Location, used in storage map
+  friend class Path;
+  private: 
     string name; // Name of location (i.e. corner of Geddes and Oxford)
-    coordinates coords; // {latitude,longitude} (pair)
-    mutable list<Path> paths; // List of paths connected to point
-
-    Location() = default; // DEFAULT CONSTRUCTOR 
+    Coordinates coords; // {latitude,longitude} (pair<pair<int,int>,pair<int,int>>)
+    vector<Path> paths; // List of paths connected to point
+  public:
+    // DEFAULT CONSTRUCTOR 
+    Location() = default;
     // Complete CTOR
-    Location(string name_in, double lat_in, double lon_in): id(0), name(name_in) {
-      coords = {{static_cast<int>(lat_in),static_cast<int>(round((lat_in-static_cast<int>(lat_in)) * 1e6))},{static_cast<int>(lon_in),static_cast<int>(round((lon_in-static_cast<int>(lon_in)) * 1e6))}};
-    }
+    Location(string name_in, Coordinates coords_in): name(name_in), coords(coords_in) {}
 
     bool operator==(const Location& other) const {
       return coords==other.coords;
@@ -40,9 +40,15 @@ class Location {
       return coords!=other.coords;
     }
     bool operator<(const Location& other) const {
-      return tie(coords) < tie(other.coords);
+      return coords < other.coords;
     }
-    Path& operator[](const pair<Location,pair<TerrainType,string>> &other) const;
+    // RETURNS TRUE IF LOCATION HAS PATH TO POINTED TO LOCATION
+    bool has(Location* other) const;
+    // RETURNS TRUE IF LOCATION HAS PATH TO COORDS
+    bool goesTo(Coordinates coords) const;
+    void setName(string name_in) {name = name_in;}
+    Path* operator[](Location* other) {return this->operator()(other);}
+    Path* operator()(Location* other, string name="", TerrainType terrain = Unknown, bool modify = true);
     string str(bool concise = false) const;
 };
 
