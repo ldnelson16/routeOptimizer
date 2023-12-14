@@ -6,7 +6,8 @@ enum TerrainType {
   Paved,
   Gravel,
   Dirt,
-  Grass
+  Grass,
+  Unknown
 };
 
 #endif // TERRAINTYPE_HPP
