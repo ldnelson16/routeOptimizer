@@ -6,18 +6,15 @@
 #include <list>
 #include <algorithm>
 #include <sstream>
+#include <tuple>
+#include <set>
 
 #include "Location.hpp"
 #include "Path.hpp"
+#include "Coordinates.hpp"
+#include "TerrainType.hpp"
 
 using namespace std;
-
-// FORWARD DECLARATIONS
-enum TerrainType;
-class Path;
-class Location;
-class LocationAlreadyExists;
-class PathAlreadyExists;
 
 /* 
 Creator: Luke Nelson
@@ -25,8 +22,10 @@ Start Date: 12/10/2023
 */
 
 class GeoMap {
+  using coordinates = pair<pair<int,int>,pair<int,int>>;
   private:
-    vector<Location> nodes;
+    set<Location*> firstlocs;
+    map<Coordinates,Location*> locations;
   public:
     friend class LocationDoesntExist;
     friend class PathAlreadyExists;
@@ -36,91 +35,104 @@ class GeoMap {
     // Default constructor (takes no inputs)
     GeoMap() {}
 
-    // [] operator (returns reference to position at that location (creates one if it doesn't exist))
-    Location& operator[](pair<double,double> latlon) {
-      if (!contains(latlon)) { // return doesn't already exist in geomap
-        addLocation(Location("",latlon.first,latlon.second));
-      }
-      auto it = lower_bound(nodes.begin(),nodes.end(),Location("",latlon.first,latlon.second));
-      return *it;
+    // [] operator 
+    // RETURNS POINTER TO LOCATION INSERTED (OR EXISTING LOCATION IF IT ALREADY EXISTS)
+    // INSERT BY ADDING A TUPLE WITH {NAME,COORDS}
+    Location* operator[](const tuple<string,Coordinates>& loc_info) {
+      // check for existing location
+      auto it = locations.find(get<1>(loc_info));
+      if (it!=locations.end()) {return (*it).second;}
+      // create location
+      Location* loc = new Location(get<0>(loc_info),get<1>(loc_info));
+      // add to first locations and locations map
+      firstlocs.insert(loc);
+      locations[get<1>(loc_info)] = loc;
+      // return pointer to inserted location
+      return loc;
     }
 
-    // [] operator (requires name) reference to position at that location (creates one if it doesn't exist)
-    // Names element as well (or changes name)
-    Location& operator[](pair<pair<double,double>,string> latlonname) {
-      if (!contains(latlonname.first)) { // return doesn't already exist in geomap
-        addLocation(Location(latlonname.second,latlonname.first.first,latlonname.first.second));
-      }
-      auto it = lower_bound(nodes.begin(),nodes.end(),Location("",latlonname.first.first,latlonname.first.second));
-      (*it).name=latlonname.second;
-      return *it;
+    // [] operator 
+    // RETURNS POINTER TO LOCATION INSERTED (OR EXISTING LOCATION IF IT ALREADY EXISTS)
+    // INSERT BY ADDING COORDS (IF DOESN'T EXIST ADDS NAME AS COORDINATES)
+    Location* operator[](const Coordinates& coords) {
+      // check for existing location
+      auto it = locations.find(coords);
+      if (it!=locations.end()) {return (*it).second;}
+      // create location
+      Location* loc = new Location(*coords,coords);
+      // add to first locations and locations map
+      firstlocs.insert(loc);
+      locations[coords] = loc;
+      // return pointer to inserted location
+      return loc;
     }
 
-    // () operator to create a path (returns reference to that path)
-    Path& operator()(Location& loc_a, Location& loc_b, TerrainType terrain, string name, bool force = true) {
-      addPath(loc_a,loc_b,terrain,name,force);
-      return loc_a[make_pair(loc_b,make_pair(terrain,name))];
+    // [] operator
+    // RETURNS POINTER TO PAIR OF LOCATIONS INSERTED (OR EXISTING LOCATION IF IT ALREADY EXISTS)
+    // INSERT BY ADDING A PAIR WITH TWO TUPLES AS FOLLOWS: {NAME,COORDS}
+    Path* operator[](const tuple<Coordinates,Coordinates,tuple<string,TerrainType>>& locs_info) {
+      // check for locations
+      auto it1 = locations.find(get<0>(locs_info));
+      auto it2 = locations.find(get<1>(locs_info));
+      if (it1!=locations.end()&&it2!=locations.end()) { // both locations exist
+        // check for existence in first locations
+        auto it1a = firstlocs.find(it1->second);
+        auto it2a = firstlocs.find(it2->second);
+        // both locations exists, modify path
+        if (get<0>(locs_info).getName()!="") {it1->second->setName(get<0>(locs_info).getName());}
+        if (get<1>(locs_info).getName()!="") {it2->second->setName(get<1>(locs_info).getName());}
+        if (it1a!=firstlocs.end()&&it2a!=firstlocs.end()) {
+          // both locations are in firstlocs (one must be removed)
+          firstlocs.erase(it2a); // arbitarily remove 2
+          return (it1->second)->operator()(it2->second,get<0>(get<2>(locs_info)),get<1>(get<2>(locs_info)));
+        }
+        else if (it1a!=firstlocs.end()) {
+          // only 1 is in firstlocs (remove 1 from firstlocs)
+          firstlocs.erase(it1a);
+          return (it1->second)->operator()(it2->second,get<0>(get<2>(locs_info)),get<1>(get<2>(locs_info)));
+        }
+        else if (it2a!=firstlocs.end()) {
+          // only 2 is in firstlocs (remove 2 from firstlocs)
+          firstlocs.erase(it2a); 
+          return (it1->second)->operator()(it2->second,get<0>(get<2>(locs_info)),get<1>(get<2>(locs_info)));
+        }
+        else {
+          // no locations in firstlocs
+          return (it1->second)->operator()(it2->second,get<0>(get<2>(locs_info)),get<1>(get<2>(locs_info)));
+        }
+      }
+      else if (it1!=locations.end()) { // only location 1 exists
+        if (get<0>(locs_info).getName()!="") {it1->second->setName(get<0>(locs_info).getName());}
+        // create location 2
+        Location* loc = new Location(get<1>(locs_info).getName()=="" ? *get<1>(locs_info):get<1>(locs_info).getName(),get<1>(locs_info)); 
+        locations[get<1>(locs_info)] = loc;
+        // create path btwn loc 1 and loc 2 (hence why no adding to firstlocs)
+        return (it1->second)->operator()(loc,get<0>(get<2>(locs_info)),get<1>(get<2>(locs_info)));
+      }
+      else if (it2!=locations.end()) { // only location 2 exists
+        if (get<1>(locs_info).getName()!="") {it2->second->setName(get<1>(locs_info).getName());}
+        // create location 1
+        Location* loc = new Location(get<0>(locs_info).getName()=="" ? *get<0>(locs_info):get<0>(locs_info).getName(),get<0>(locs_info));
+        locations[get<0>(locs_info)] = loc;
+        // create path btwn loc 1 and loc 2 (hence why no adding to firstlocs)
+        return loc->operator()(it2->second,get<0>(get<2>(locs_info)),get<1>(get<2>(locs_info)));
+      }
+      else { // neither location exists
+        // create locations 1 and 2
+        Location* loc1 = new Location(get<0>(locs_info).getName()=="" ? *get<0>(locs_info):get<0>(locs_info).getName(),get<0>(locs_info)); // 1
+        locations[get<0>(locs_info)] = loc1;
+        Location* loc2 = new Location(get<1>(locs_info).getName()=="" ? *get<1>(locs_info):get<1>(locs_info).getName(),get<1>(locs_info)); // 2
+        locations[get<1>(locs_info)] = loc2;
+        firstlocs.insert(loc1);
+        // create path between new locations
+        return loc1->operator()(loc2,get<0>(get<2>(locs_info)),get<1>(get<2>(locs_info)));
+      }
+      return nullptr;
     }
 
     // returns true if latlon pair is in geomap, false if not
     bool contains(pair<double,double> latlon) {
-      return (binary_search(nodes.begin(),nodes.end(),Location("",latlon.first,latlon.second)));
-    }
-
-    // Add Location node
-    void addLocation(const Location &loc) {
-      if (binary_search(nodes.begin(),nodes.end(),loc)) {throw LocationAlreadyExists(loc);}
-      else {
-        auto insertionPoint = lower_bound(nodes.begin(), nodes.end(), loc);
-        nodes.insert(insertionPoint,loc);
-      }
-    }
-
-    // Add Path btwn two Location nodes
-    void addPath(const Location &loc_a, const Location &loc_b, TerrainType terrain, string name, bool force = false) {
-      auto ita = lower_bound(nodes.begin(),nodes.end(),loc_a);
-      auto itb = lower_bound(nodes.begin(),nodes.end(),loc_b);
-      // both locations exist
-      if (ita!=nodes.end() && itb!=nodes.end() && *ita==loc_a && *itb==loc_b) {
-        // path already exists
-        for (auto &it: ita->paths) {
-          if (it==make_pair(loc_a,loc_b)) {
-            throw PathAlreadyExists(it);
-          }
-        }
-        //path doesnt exist
-        (*ita).paths.push_back(Path(name,terrain,&loc_a,&loc_b));
-        (*itb).paths.push_back(Path(name,terrain,&loc_b,&loc_a));
-      }
-      // one or neither locations exist
-      else {
-        if (force) {
-          if ((ita==nodes.end()||*ita!=loc_a)&&(itb==nodes.end()||*ita!=loc_b)) {
-            // create two locations
-            addLocation(loc_a);
-            addLocation(loc_b);
-          }
-          else if (ita==nodes.end()||*ita!=loc_a) {
-            addLocation(loc_a);
-          }
-          else {
-            addLocation(loc_b);
-          }
-          loc_a.paths.push_back(Path(name,terrain,&loc_a,&loc_b));
-          loc_b.paths.push_back(Path(name,terrain,&loc_b,&loc_a));
-        }
-        else {
-          if ((ita==nodes.end()||*ita!=loc_a)&&(itb==nodes.end()||*ita!=loc_b)) {
-            throw LocationDoesntExist({loc_a,loc_b});
-          }
-          else if (ita==nodes.end()||*ita!=loc_a) {
-            throw LocationDoesntExist({loc_a});
-          }
-          else {
-            throw LocationDoesntExist({loc_b});
-          }
-        }
-      }
+      return locations.find(Coordinates(latlon))!=locations.end();
     }
 };
 
