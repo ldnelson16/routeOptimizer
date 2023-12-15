@@ -1,5 +1,6 @@
 #include "Location.hpp"
 #include "Path.hpp"
+#include "Route.hpp"
 
 // FORWARD DECLARATION
 class GeoMap;
@@ -53,4 +54,13 @@ bool Location::goesTo(Coordinates coords) const {
     if (path.dest->coords==coords) {return true;}
   }
   return false;
+}
+
+vector<pair<Location*, double>> getOptions(const Route& route, Location* dest) {
+  vector<pair<Location*, double>> lst;
+  for (const Path& path: paths) {
+    if (!route.inRoute(path.dest)) { // if not in route already
+
+    }
+  }
 }

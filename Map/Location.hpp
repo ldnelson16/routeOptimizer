@@ -1,14 +1,8 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 
-#include <string>
-#include <list>
-#include <algorithm>
 #include <vector>
-#include <iostream>
 #include <sstream>
-#include <map>
-#include <cmath>
 
 #include "TerrainType.hpp"
 #include "Coordinates.hpp"
@@ -18,6 +12,7 @@ using namespace std;
 // FORWARD DECLARATION
 class GeoMap;
 class Path;
+class Route;
 
 // location for Struct (node)
 // Constructor: {string Name, double Latitude, double Longitude}
@@ -47,6 +42,7 @@ class Location {
     // RETURNS TRUE IF LOCATION HAS PATH TO COORDS
     bool goesTo(Coordinates coords) const;
     void setName(string name_in) {name = name_in;}
+    vector<pair<Location*,double>> getOptions(const Route& route, Location* dest);
     Path* operator[](Location* other) {return this->operator()(other);}
     Path* operator()(Location* other, string name="", TerrainType terrain = Unknown, bool modify = true);
     string str(bool concise = false) const;
@@ -73,6 +69,14 @@ class LocationDoesntExist: public std::exception {
       ostringstream message;
       for (const Location& loc: locs) {
         message << loc.str();
+      }
+      errorMessage+=message.str();
+    } 
+    LocationDoesntExist(const vector<Coordinates>& coordsset) {
+      errorMessage = "The following location(s) aren't in the geomap yet:\n";
+      ostringstream message;
+      for (const Coordinates& coords: coordsset) {
+        message << *coords;
       }
       errorMessage+=message.str();
     } 
