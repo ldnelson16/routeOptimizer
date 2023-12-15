@@ -1,13 +1,23 @@
 #include "Path.hpp"
 #include "Location.hpp"
 
-Path::Path(string name_in, TerrainType ter_in, Location* loc_a, Location* loc_b): pathname(name_in), terrain(ter_in), start(loc_a), dest(loc_b) {}
+Path::Path(string name_in, TerrainType ter_in, Location* loc_a, Location* loc_b): pathname(name_in), terrain(ter_in), start(loc_a), dest(loc_b) {
+  distance = start->coords.dist(dest->coords);
+}
 
-Path::Path(const Path& other): pathname(other.pathname), terrain(other.terrain), start(other.start), dest(other.dest) {}
+Path::Path(const Path& other): pathname(other.pathname), terrain(other.terrain), start(other.start), dest(other.dest) {
+  distance = dest->coords.dist(start->coords);
+}
 
 Path::Path(const Path& other, bool reverse): pathname(other.pathname), terrain(other.terrain){
-  if (reverse) {start = other.dest; dest = other.start;}
-  else {start = other.start; dest = other.dest;}
+  if (reverse) {
+    start = other.dest; dest = other.start;
+    distance = start->coords.dist(dest->coords);
+  }
+  else {
+    start = other.start; dest = other.dest;
+    distance = start->coords.dist(dest->coords);
+  }
 }
 
 string Path::str(bool concise) const {

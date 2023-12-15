@@ -1,14 +1,6 @@
 #ifndef PATH_HPP
 #define PATH_HPP
 
-#include <string>
-#include <list>
-#include <algorithm>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <cmath>
-#include <utility>
 #include "Location.hpp"
 #include "TerrainType.hpp"
 
@@ -20,11 +12,13 @@ class Location;
 // Constructor: {string Name, Terraintype terrain, Location, Location}
 class Path {
   friend class Location;
+  friend class Route;
   private:  
     string pathname; // Name of path (i.e. Sheldon Road)
     TerrainType terrain; // Type of terrain (i.e. Grass) (represented by enum TerrainType)
     Location* start; // start
     Location* dest; // destination
+    double distance; // distance (in meters)
     // Safety level, frequency and other variables
   public:
     // Default constructor 
