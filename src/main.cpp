@@ -1,6 +1,4 @@
 #include "../Map/GeoMap.hpp"
-#include "../Map/Location.hpp"
-#include "../Map/Path.hpp"
 #include "../Map/Coordinates.hpp"
 #include <iostream>
 
@@ -16,5 +14,6 @@ int main() {
   map[{Coordinates(14,8,"Chicago"),Coordinates(120,8,"Grand Valley State"),{"M18",Gravel}}];
   map[{Coordinates(4,80),Coordinates(12,9),{"I94",Unknown}}];
   map[{Coordinates(50,50,"Canton"),Coordinates(60,60,"Plymouth"),{"Canton Center",Dirt}}];
+  map[{Coordinates(42.281099,-83.512126),Coordinates(42.377054,-83.472391),{"drive to P's house",Paved}}];
   cout << "Done";
 }

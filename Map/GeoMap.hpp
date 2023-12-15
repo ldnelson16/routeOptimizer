@@ -1,18 +1,15 @@
 #ifndef GEOMAP_HPP
 #define GEOMAP_HPP
 
-#include <vector>
-#include <iostream>
-#include <list>
-#include <algorithm>
-#include <sstream>
 #include <tuple>
 #include <set>
+#include <map>
 
 #include "Location.hpp"
 #include "Path.hpp"
 #include "Coordinates.hpp"
 #include "TerrainType.hpp"
+#include "Route.hpp"
 
 using namespace std;
 
@@ -34,6 +31,12 @@ class GeoMap {
 
     // Default constructor (takes no inputs)
     GeoMap() {}
+
+    // CONTAINS
+    // RETURNS TRUE IF LOCATION WITH SPECIFIC COORDINATES EXISTS IN GEOMAP
+    bool contains(const Coordinates &coords) {
+      return locations.find(coords)!=locations.end();
+    }
 
     // [] operator 
     // RETURNS POINTER TO LOCATION INSERTED (OR EXISTING LOCATION IF IT ALREADY EXISTS)
@@ -68,7 +71,7 @@ class GeoMap {
     }
 
     // [] operator
-    // RETURNS POINTER TO PAIR OF LOCATIONS INSERTED (OR EXISTING LOCATION IF IT ALREADY EXISTS)
+    // RETURNS POINTER TO PATH OBJECT (OR EXISTING LOCATION IF IT ALREADY EXISTS)
     // INSERT BY ADDING A PAIR WITH TWO TUPLES AS FOLLOWS: {NAME,COORDS}
     Path* operator[](const tuple<Coordinates,Coordinates,tuple<string,TerrainType>>& locs_info) {
       // check for locations
@@ -130,9 +133,8 @@ class GeoMap {
       return nullptr;
     }
 
-    // returns true if latlon pair is in geomap, false if not
-    bool contains(pair<double,double> latlon) {
-      return locations.find(Coordinates(latlon))!=locations.end();
+    Route& findPath(const Route& route, Location* begin, Location* end) {
+      vector<pair<Location*,double>> options = begin->getOptions(route,end);
     }
 };
 
