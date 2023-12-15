@@ -15,5 +15,6 @@ int main() {
   map[{Coordinates(4,80),Coordinates(12,9),{"I94",Unknown}}];
   map[{Coordinates(50,50,"Canton"),Coordinates(60,60,"Plymouth"),{"Canton Center",Dirt}}];
   map[{Coordinates(42.281099,-83.512126),Coordinates(42.377054,-83.472391),{"drive to P's house",Paved}}];
-  cout << "Done";
+  map(Coordinates(42.281099,-83.512126),Coordinates(14,8));
+  cout << "Done" << endl;
 }
