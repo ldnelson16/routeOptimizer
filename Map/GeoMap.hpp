@@ -23,6 +23,7 @@ class GeoMap {
   private:
     set<Location*> firstlocs;
     map<Coordinates,Location*> locations;
+    vector<Route*> routes;
   public:
     friend class LocationDoesntExist;
     friend class PathAlreadyExists;
@@ -133,7 +134,17 @@ class GeoMap {
       return nullptr;
     }
 
-    Route& findPath(const Route& route, Location* begin, Location* end) {
+    Route* operator()(const Coordinates& a, const Coordinates& b) {
+      // check for coordinates existing in map
+      if (locations.find(a)==locations.end()) {throw LocationDoesntExist({a});}
+      else if (locations.find(b)==locations.end()) {throw LocationDoesntExist({b});}
+
+      Route* route = new Route({});
+      findPath(route,(*locations.find(a)).second,(*locations.find(b)).second);
+      return route;
+    }
+
+    void findPath(Route* route, Location* begin, Location* end) {
       vector<pair<Location*,double>> options = begin->getOptions(route,end);
     }
 };

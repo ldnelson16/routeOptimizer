@@ -56,11 +56,13 @@ bool Location::goesTo(Coordinates coords) const {
   return false;
 }
 
-vector<pair<Location*, double>> getOptions(const Route& route, Location* dest) {
+vector<pair<Location*, double>> Location::getOptions(Route* route, Location* dest) {
   vector<pair<Location*, double>> lst;
-  for (const Path& path: paths) {
-    if (!route.inRoute(path.dest)) { // if not in route already
-
+  // check all paths in current route
+  for (const Path& p: paths) {
+    if (!route->inRoute(p.dest)) { // if not in route already, add to vector of options
+      lst.push_back({p.dest,p.distance});
     }
   }
+  return lst;
 }

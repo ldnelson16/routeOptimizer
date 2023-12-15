@@ -42,7 +42,7 @@ class Location {
     // RETURNS TRUE IF LOCATION HAS PATH TO COORDS
     bool goesTo(Coordinates coords) const;
     void setName(string name_in) {name = name_in;}
-    vector<pair<Location*,double>> getOptions(const Route& route, Location* dest);
+    vector<pair<Location*,double>> getOptions(Route* route, Location* dest);
     Path* operator[](Location* other) {return this->operator()(other);}
     Path* operator()(Location* other, string name="", TerrainType terrain = Unknown, bool modify = true);
     string str(bool concise = false) const;
