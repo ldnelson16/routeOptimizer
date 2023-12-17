@@ -18,6 +18,8 @@ class Route;
 // Constructor: {string Name, double Latitude, double Longitude}
 class Location { 
   friend class Path;
+  friend class GeoMap;
+  friend class CompareLocations;
   private: 
     string name; // Name of location (i.e. corner of Geddes and Oxford)
     Coordinates coords; // {latitude,longitude} (pair<pair<int,int>,pair<int,int>>)
@@ -42,10 +44,18 @@ class Location {
     // RETURNS TRUE IF LOCATION HAS PATH TO COORDS
     bool goesTo(Coordinates coords) const;
     void setName(string name_in) {name = name_in;}
-    vector<pair<Location*,double>> getOptions(Route* route, Location* dest);
+    vector<pair<Path*,double>> getOptions(Route route, Location* dest);
     Path* operator[](Location* other) {return this->operator()(other);}
-    Path* operator()(Location* other, string name="", TerrainType terrain = Unknown, bool modify = true);
+    Path* operator()(Location* other, string name="", TerrainType terrain = Unknown, double distance = -1., bool modify = true);
     string str(bool concise = false) const;
+};
+
+class CompareLocations{
+  private:
+    Location* final;
+  public: 
+    CompareLocations(Location* final_in): final(final_in) {}
+    bool operator()(const Route& lhs, const Route& rhs) const;
 };
 
 class LocationAlreadyExists: public std::exception {

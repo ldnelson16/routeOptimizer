@@ -9,7 +9,7 @@ using namespace std;
 
 std::string Location::str(bool concise) const {
   if (concise) {
-    return "Name: "+name+"\n";
+    return "Name: "+name;
   }
   else {
     ostringstream loc_info;
@@ -22,7 +22,7 @@ std::string Location::str(bool concise) const {
   }
 }
 
-Path* Location::operator()(Location* other, string name,TerrainType terrain,bool modify) {
+Path* Location::operator()(Location* other, string name,TerrainType terrain,double distance, bool modify) {
   // check if path already exists
   for (int i=0;i<paths.size();++i) {
     if(paths[i].dest==other) {
@@ -34,11 +34,15 @@ Path* Location::operator()(Location* other, string name,TerrainType terrain,bool
   }
   // modify defaults
   if (name=="") {name=name+" to "+other->name;}
-  // Create path and use copy ctor for other
-  Path forward(name,terrain,this,other);
   // push into path vectors
-  paths.push_back(Path(name,terrain,this,other));
-  other->paths.push_back(Path(name,terrain,other,this));
+  if (distance==-1) {
+    paths.push_back(Path(name,terrain,this,other));
+    other->paths.push_back(Path(name,terrain,other,this));
+  }
+  else {
+    paths.push_back(Path(name,terrain,this,other,distance));
+    other->paths.push_back(Path(name,terrain,other,this,distance));
+  }
   return &paths.back();
 }
 
@@ -56,13 +60,21 @@ bool Location::goesTo(Coordinates coords) const {
   return false;
 }
 
-vector<pair<Location*, double>> Location::getOptions(Route* route, Location* dest) {
-  vector<pair<Location*, double>> lst;
+vector<pair<Path*, double>> Location::getOptions(Route route, Location* dest) {
+  vector<pair<Path*, double>> lst;
   // check all paths in current route
-  for (const Path& p: paths) {
-    if (!route->inRoute(p.dest)) { // if not in route already, add to vector of options
-      lst.push_back({p.dest,p.distance});
+  for (int i=0;i<paths.size();++i) {
+    if (!route.inRoute(paths[i].dest)) { // if not in route already, add to vector of options
+      lst.push_back({&paths[i],paths[i].distance});
     }
   }
   return lst;
+}
+
+bool CompareLocations::operator()(const Route& lhs, const Route& rhs) const {
+  double lhs_dist = lhs.paths.back()->dest->coords.dist(final->coords);
+  double rhs_dist = rhs.paths.back()->dest->coords.dist(final->coords);
+  double cost_lhs = lhs.distance+lhs_dist;
+  double cost_rhs = rhs.distance+rhs_dist;
+  return cost_lhs > cost_rhs;
 }
