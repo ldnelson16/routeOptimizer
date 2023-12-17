@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS ?= --std=c++17 -Wall -Werror -pedantic -g -Wno-sign-compare -Wno-comment
+CXXFLAGS ?= --std=c++17 -Wall -Werror -pedantic -g -Wno-sign-compare -Wno-comment -fsanitize=address -fsanitize=undefined
 SRC_DIR := .
 TEST_DIR := test
 BUILD_DIR := build
