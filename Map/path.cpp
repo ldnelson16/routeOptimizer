@@ -5,9 +5,9 @@ Path::Path(string name_in, TerrainType ter_in, Location* loc_a, Location* loc_b)
   distance = start->coords.dist(dest->coords);
 }
 
-Path::Path(const Path& other): pathname(other.pathname), terrain(other.terrain), start(other.start), dest(other.dest) {
-  distance = dest->coords.dist(start->coords);
-}
+Path::Path(string name_in, TerrainType ter_in, Location* loc_a, Location* loc_b, double distance_in): pathname(name_in), terrain(ter_in), start(loc_a), dest(loc_b), distance(distance_in) {}
+
+Path::Path(const Path& other): pathname(other.pathname), terrain(other.terrain), start(other.start), dest(other.dest), distance(other.distance) {}
 
 Path::Path(const Path& other, bool reverse): pathname(other.pathname), terrain(other.terrain){
   if (reverse) {

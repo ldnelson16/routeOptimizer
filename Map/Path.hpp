@@ -13,6 +13,8 @@ class Location;
 class Path {
   friend class Location;
   friend class Route;
+  friend class GeoMap;
+  friend class CompareLocations;
   private:  
     string pathname; // Name of path (i.e. Sheldon Road)
     TerrainType terrain; // Type of terrain (i.e. Grass) (represented by enum TerrainType)
@@ -23,6 +25,8 @@ class Path {
   public:
     // Default constructor 
     Path(string name_in, TerrainType ter_in, Location* loc_a, Location* loc_b);
+    // Default constructor with manual distance
+    Path(string name_in, TerrainType ter_in, Location* loc_a, Location* loc_b, double distance_in);
     // Normal Copy ctor
     Path(const Path& other);
     // Copy ctor (if reverse, true it flips Path)
@@ -39,6 +43,9 @@ class Path {
     // MAYBE NEED == WITH LOCATION*'s
     Location* operator*() {
       return dest;
+    }
+    bool operator<(const Path& other) {
+      return distance < other.distance;
     }
 };
 
