@@ -38,8 +38,10 @@ int main() {
 
   map[{Coordinates(41.591,-93.604),Coordinates(44.955,-93.102),{"Canton Center",Dirt,248*1609.34}}];
   
-  map(Coordinates(42.733,-84.555),Coordinates(41.591,-93.604));
-  map(Coordinates(38.336,-81.612),Coordinates(44.955,-93.102));
+  Route* r1 = map(Coordinates(42.733,-84.555),Coordinates(41.591,-93.604));
+  Route* r2 = map(Coordinates(38.336,-81.612),Coordinates(44.955,-93.102));
+
+  cout << *r1 << *r2;
 
   cout << "Done" << endl;
 }

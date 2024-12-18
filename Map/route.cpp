@@ -30,3 +30,15 @@ bool Route::contains(Location* loc) const {
   }
   return false;
 }
+
+string Route::print() const {
+  ostringstream os;
+  if (paths.size()!=0) {
+    os << paths.front()->start->name;
+  }
+  for (auto path_ptr: paths) {
+    os << "->" << path_ptr->dest->name;
+  }
+  os << endl;
+  return os.str();
+}

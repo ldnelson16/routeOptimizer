@@ -20,6 +20,7 @@ class Location {
   friend class Path;
   friend class GeoMap;
   friend class CompareLocations;
+  friend class Route;
   private: 
     string name; // Name of location (i.e. corner of Geddes and Oxford)
     Coordinates coords; // {latitude,longitude} (pair<pair<int,int>,pair<int,int>>)

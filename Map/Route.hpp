@@ -29,6 +29,11 @@ class Route {
       distance += other.distance;
     }
     bool contains(Location* loc) const;
+    string print() const;
+    friend std::ostream& operator<<(std::ostream& os, const Route& route) {
+      os << route.print();
+      return os;
+    }
 };
 
 class NoRouteExists: public std::exception {
